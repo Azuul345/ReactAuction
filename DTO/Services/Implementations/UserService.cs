@@ -7,24 +7,26 @@ using ReactAuction.DTO.Models;
 using ReactAuction.DTO.Requests;
 using ReactAuction.DTO.Responses;
 using ReactAuction.DTO.Services.Interfaces;
+using ReactAuction.DTO.Repositories.Interfaces;
+
 
 namespace ReactAuction.DTO.Services.Implementations
 {
     // This service contains the main logic for registering and logging in users.
     public class UserService : IUserService
     {
-        private readonly AppDbContext _contex;
+        private readonly IUserRepository _userRepository;
 
-        public UserService(AppDbContext contex)
+        public UserService(IUserRepository userRepository)
         {
-            _contex = contex;
+            _userRepository = userRepository;
         }
 
 
 
         public async Task<UserResponse?> RegisterAsync(UserRegisterRequest request)
         {
-            var existingUser = await _contex.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
 
             if (existingUser != null)
             {
@@ -42,8 +44,7 @@ namespace ReactAuction.DTO.Services.Implementations
                 IsActive = true
             };
 
-            _contex.Users.Add(user);
-            await _contex.SaveChangesAsync();
+            await _userRepository.AddAsync(user);
 
             return new UserResponse
             {
@@ -59,7 +60,7 @@ namespace ReactAuction.DTO.Services.Implementations
 
         public async Task<UserResponse?> LoginAsync(UserLoginRequest request)
         {
-            var user = await _contex.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            var user = await _userRepository.GetByEmailAsync(request.Email);
 
             if (user == null)
             {
