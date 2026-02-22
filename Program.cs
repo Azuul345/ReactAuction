@@ -7,6 +7,7 @@ using ReactAuction.DTO.Repositories.Implementations;
 
 
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add controllers (enables attribute routing with [ApiController] and [Route]).
@@ -23,6 +24,9 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(buil
 // Register the UserReposirory and UserService so we can inject it into controllers.
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
+builder.Services.AddScoped<IAuctionService, AuctionService>();
 
 
 var app = builder.Build();
