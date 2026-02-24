@@ -3,6 +3,8 @@ using ReactAuction.DTO.Requests;
 using ReactAuction.DTO.Response;
 using ReactAuction.DTO.Responses;
 using ReactAuction.DTO.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ReactAuction.Controllers
 {
@@ -40,12 +42,18 @@ namespace ReactAuction.Controllers
         }
 
         // POST: /api/Auctions
-        // For now, we will hard-code creatorUserId (e.g. 1) until we add JWT.
         [HttpPost]
+        [Authorize]
         public async Task<ActionResult<AuctionDetailResponse>> CreateAuction(AuctionCreateRequest request)
         {
+
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
             // TODO: replace this with the id from the logged-in user (JWT) later.
-            var creatorUserId = 1;
+            var creatorUserId = int.Parse(userIdClaim.Value);
 
             var result = await _auctionService.CreateAuctionAsync(request, creatorUserId);
 

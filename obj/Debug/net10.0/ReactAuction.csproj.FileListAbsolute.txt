@@ -160,3 +160,4 @@ C:\Users\diego\Documents\ITHS-WEBB\ReactAuction\ReactAuction\bin\Debug\net10.0\S
 C:\Users\diego\Documents\ITHS-WEBB\ReactAuction\ReactAuction\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\Users\diego\Documents\ITHS-WEBB\ReactAuction\ReactAuction\bin\Debug\net10.0\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\Users\diego\Documents\ITHS-WEBB\ReactAuction\ReactAuction\obj\Debug\net10.0\ReactAuction.sourcelink.json
+C:\Users\diego\Documents\ITHS-WEBB\ReactAuction\ReactAuction\bin\Debug\net10.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using ReactAuction.DTO.Requests;
 using ReactAuction.DTO.Responses;
 using ReactAuction.DTO.Services.Interfaces;
-
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ReactAuction.Controllers
 {
@@ -34,7 +35,7 @@ namespace ReactAuction.Controllers
 
         // POST: /api/users/login
         [HttpPost("login")]
-        public async Task<ActionResult<UserResponse>> Login(UserLoginRequest request)
+        public async Task<ActionResult<LoginResponse>> Login(UserLoginRequest request)
         {
             var result = await _userService.LoginAsync(request);
 
@@ -45,6 +46,41 @@ namespace ReactAuction.Controllers
 
             return Ok(result);
         }
+
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<UserResponse>>> GetUsers()
+        {
+            var result = await _userService.GetAllAsync();
+            return Ok(result);
+        }
+
+
+
+        [HttpPost("change-password")]
+        [Authorize]
+        public async Task<IActionResult> ChangePassword(ChangePasswordRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            var success = await _userService.ChangePasswordAsync(
+                userId,
+                request.CurrentPassword,
+                request.NewPassword);
+
+            if (!success)
+            {
+                return BadRequest(new { message = "Current password is incorrect." });
+            }
+
+            return NoContent();
+        }
+
 
 
     }

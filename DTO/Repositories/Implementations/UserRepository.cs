@@ -24,10 +24,19 @@ namespace ReactAuction.DTO.Repositories.Implementations
             await _context.SaveChangesAsync();
         }
 
-        // public async Task SaveChangesAsync()
-        // {
-        //     await _context.SaveChangesAsync();
-        // }
+        public async Task<List<User>> GetAllAsync()
+        {
+            return await _context.Users.ToListAsync();
+        }
+
+        public async Task<User?> FindUserById(int id)
+        {
+            return await _context.Users.FindAsync(id);
+        }
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
 
 
     }

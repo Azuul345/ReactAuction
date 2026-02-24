@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ReactAuction")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b4c75f11bf42ee328a4962f9e39782a938586877")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d55b1fe48c3605821715b048f924fbc7d0852a86")]
 [assembly: System.Reflection.AssemblyProductAttribute("ReactAuction")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ReactAuction")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -4,11 +4,21 @@ using ReactAuction.DTO.Services.Interfaces;
 using ReactAuction.DTO.Services.Implementations;
 using ReactAuction.DTO.Repositories.Interfaces;
 using ReactAuction.DTO.Repositories.Implementations;
-
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using ReactAuction.Configuration;
 
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Bind Jwt settings from configuration.
+builder.Services.Configure<JwtSettings>(
+    builder.Configuration.GetSection("Jwt"));
+
+var jwtSettings = builder.Configuration.GetSection("Jwt").Get<JwtSettings>();
+
 
 // Add controllers (enables attribute routing with [ApiController] and [Route]).
 builder.Services.AddControllers();
@@ -27,6 +37,34 @@ builder.Services.AddScoped<IUserService, UserService>();
 
 builder.Services.AddScoped<IAuctionRepository, AuctionRepository>();
 builder.Services.AddScoped<IAuctionService, AuctionService>();
+
+builder.Services.AddScoped<IBidRepository, BidRepository>();
+builder.Services.AddScoped<IBidService, BidService>();
+
+
+//JWT
+var key = Encoding.UTF8.GetBytes(jwtSettings.Key);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings.Issuer,
+        ValidAudience = jwtSettings.Audience,
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
+builder.Services.AddAuthorization();
+
 
 
 var app = builder.Build();

@@ -8,6 +8,12 @@ using ReactAuction.DTO.Requests;
 using ReactAuction.DTO.Responses;
 using ReactAuction.DTO.Services.Interfaces;
 using ReactAuction.DTO.Repositories.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using ReactAuction.Configuration;
+
 
 
 namespace ReactAuction.DTO.Services.Implementations
@@ -16,10 +22,12 @@ namespace ReactAuction.DTO.Services.Implementations
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly JwtSettings _jwtSettings;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IOptions<JwtSettings> jwtOptions)
         {
             _userRepository = userRepository;
+            _jwtSettings = jwtOptions.Value;
         }
 
 
@@ -58,7 +66,7 @@ namespace ReactAuction.DTO.Services.Implementations
         }
 
 
-        public async Task<UserResponse?> LoginAsync(UserLoginRequest request)
+        public async Task<LoginResponse?> LoginAsync(UserLoginRequest request)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email);
 
@@ -79,13 +87,21 @@ namespace ReactAuction.DTO.Services.Implementations
                 return null;
             }
 
-            return new UserResponse
+            var token = GenerateJwtToken(user);
+
+            var userResponse = new UserResponse
             {
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
                 IsAdmin = user.IsAdmin,
                 IsActive = user.IsActive
+            };
+
+            return new LoginResponse
+            {
+                User = userResponse,
+                Token = token
             };
 
         }
@@ -99,5 +115,70 @@ namespace ReactAuction.DTO.Services.Implementations
 
             return Convert.ToHexString(hashBytes);
         }
+
+        public async Task<List<UserResponse>> GetAllAsync()
+        {
+            var users = await _userRepository.GetAllAsync();
+
+
+            var result = users.Select(u => new UserResponse
+            {
+                Id = u.Id,
+                Name = u.Name,
+                Email = u.Email,
+                IsAdmin = u.IsAdmin,
+                IsActive = u.IsActive
+            }).ToList();
+
+            return result;
+        }
+
+        public async Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword)
+        {
+            var user = await _userRepository.FindUserById(userId);
+            if (user == null)
+                return false;
+
+            var currentHash = HashPassword(currentPassword);
+            if (user.PasswordHash != currentHash)
+                return false;
+
+            user.PasswordHash = HashPassword(newPassword);
+            await _userRepository.SaveChangesAsync();
+            return true;
+        }
+
+
+
+
+        private string GenerateJwtToken(User user)
+        {
+            // Create claims (data stored in the token).
+            var claims = new List<Claim>
+    {
+        new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+        new Claim(JwtRegisteredClaimNames.Email, user.Email),
+        new Claim(ClaimTypes.Name, user.Name),
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Role, user.IsAdmin ? "Admin" : "User")
+    };
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Key));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var expires = DateTime.UtcNow.AddMinutes(_jwtSettings.ExpiresMinutes);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtSettings.Issuer,
+                audience: _jwtSettings.Audience,
+                claims: claims,
+                expires: expires,
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+
     }
 }
