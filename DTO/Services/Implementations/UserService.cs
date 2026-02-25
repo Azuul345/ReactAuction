@@ -179,6 +179,20 @@ namespace ReactAuction.DTO.Services.Implementations
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public async Task<bool> DeactivateUserAsync(int id)
+        {
+            var user = await _userRepository.FindUserById(id);
+
+            if (user == null)
+            {
+                return false;
+            }
+
+            user.IsActive = false;
+            await _userRepository.SaveChangesAsync();
+            return true;
+        }
+
 
     }
 }

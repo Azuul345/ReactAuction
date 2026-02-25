@@ -39,5 +39,27 @@ namespace ReactAuction.Controllers
             }
             return Ok(result);
         }
+
+        [HttpDelete("undo-last-bid/{auctionId}")]
+        [Authorize]
+        public async Task<IActionResult> UndoLastBid(int auctionId)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            var success = await _bidService.UndoLastBidAsync(auctionId, userId);
+
+            if (!success)
+            {
+                return BadRequest(new { message = "Cannot undo last bid (no bids, not your bid, or auction is closed)." });
+            }
+            return NoContent();
+        }
     }
 }

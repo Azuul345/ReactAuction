@@ -66,6 +66,13 @@ namespace ReactAuction.DTO.Services.Implementations
                 return null;
             }
 
+            if (!auction.IsOpen)
+            {
+                var highestBid = auction.Bids.OrderByDescending(b => b.Amount).FirstOrDefault();
+                //explain
+                auction.Bids = highestBid == null ? new List<Bid>() : new List<Bid> { highestBid };
+            }
+
             var bids = auction.Bids?.OrderByDescending(b => b.Amount).ThenBy(b => b.CreatedAt).Select(b => new AuctionBidResponse
             {
                 Id = b.Id,
@@ -88,8 +95,6 @@ namespace ReactAuction.DTO.Services.Implementations
                 CreatedByName = auction.CreatedBtUser?.Name ?? string.Empty,
                 Bids = bids
             };
-
-
         }
 
         public async Task<List<AuctionListItemResponse>> GetOpenAuctionsAsync(string? titleSearch)
@@ -105,6 +110,55 @@ namespace ReactAuction.DTO.Services.Implementations
                 IsOpen = a.IsOpen,
                 CreatedByName = a.CreatedBtUser?.Name ?? string.Empty
             }).ToList();
+        }
+
+        public async Task<AuctionDetailResponse> UpdateAuctionAsync(int id, AuctionCreateRequest request, int userId)
+        {
+            var auction = await _auctionRepository.GetByIdWithBidsAsync(id);
+
+            if (auction == null || !auction.IsActive)
+            {
+                return null;
+            }
+
+            if (auction.CreatedByUserId != userId)
+            {
+                return null;
+            }
+
+            var hasBids = auction.Bids.Any();
+
+            if (hasBids && request.StartPrice != auction.StartPrice)
+            {
+                return null;
+            }
+
+            auction.Title = request.Title;
+            auction.Description = request.Description;
+            auction.StartTime = request.StartTime;
+            auction.EndTime = request.EndTime;
+
+            if (!hasBids)
+            {
+                auction.StartPrice = request.StartPrice;
+            }
+
+            await _auctionRepository.SaveChangesAsync();
+
+            return await GetAuctionByIdAsync(auction.Id);
+        }
+
+
+        public async Task<bool> DeactivateAuctionAsync(int id)
+        {
+            var auction = await _auctionRepository.GetByIdWithBidsAsync(id);
+            if (auction == null)
+            {
+                return false;
+            }
+            auction.IsActive = false;
+            await _auctionRepository.SaveChangesAsync();
+            return true;
         }
     }
 

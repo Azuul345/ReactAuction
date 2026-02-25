@@ -9,6 +9,8 @@ namespace ReactAuction.DTO.Repositories.Interfaces
         Task<Auction?> GetByIdWithBidsAsync(int id);
 
         Task AddAsync(Auction auction);
+
+        Task SaveChangesAsync();
     }
 
 }

@@ -12,5 +12,6 @@ namespace ReactAuction.DTO.Services.Interfaces
 
         Task<bool> ChangePasswordAsync(int userId, string currentPassword, string newPassword);
 
+        Task<bool> DeactivateUserAsync(int id);
     }
 }

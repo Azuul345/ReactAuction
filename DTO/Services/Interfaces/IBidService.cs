@@ -7,5 +7,7 @@ namespace ReactAuction.DTO.Services.Interfaces
     public interface IBidService
     {
         Task<BidResponse?> PlaceBidAsync(BidCreateRequest request, int userId);
+
+        Task<bool> UndoLastBidAsync(int auctionId, int userId);
     }
 }

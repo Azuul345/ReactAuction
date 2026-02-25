@@ -66,5 +66,26 @@ namespace ReactAuction.DTO.Services.Implementations
             };
 
         }
+
+        public async Task<bool> UndoLastBidAsync(int auctionId, int userId)
+        {
+            var auction = await _auctionRepository.GetByIdWithBidsAsync(auctionId);
+
+            if (auction == null || !auction.IsOpen)
+            {
+                return false;
+            }
+
+            var lastBid = auction.Bids.OrderByDescending(b => b.CreatedAt).FirstOrDefault();
+
+            if (lastBid == null)
+            {
+                return false;
+            }
+
+            _bidRepository.Remove(lastBid);
+            await _bidRepository.SaveChangesAsync();
+            return true;
+        }
     }
 }

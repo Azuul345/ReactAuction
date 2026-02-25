@@ -81,7 +81,18 @@ namespace ReactAuction.Controllers
             return NoContent();
         }
 
+        [HttpPatch("{id}/deactivateUser")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            var success = await _userService.DeactivateUserAsync(id);
 
+            if (!success)
+            {
+                return NotFound(new { message = "User not found." });
+            }
+            return NoContent();
+        }
 
     }
 }

@@ -64,5 +64,46 @@ namespace ReactAuction.Controllers
 
             return CreatedAtAction(nameof(GetAuctionById), new { id = result.Id }, result);
         }
+
+        [HttpPut("{id}")]
+        [Authorize]
+        public async Task<ActionResult<AuctionDetailResponse>> UpdateAuction(int id, AuctionCreateRequest request)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+
+            if (userIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
+
+            var result = await _auctionService.UpdateAuctionAsync(id, request, userId);
+
+            if (result == null)
+            {
+                return BadRequest(new { message = "Cannot update auction (not found, not owner, or price change not allowed when bids exist)." });
+            }
+
+            return Ok(result);
+
+        }
+
+
+        [HttpPatch("{id}/deactivate")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeactivateAuction(int id)
+        {
+            var success = await _auctionService.DeactivateAuctionAsync(id);
+
+            if (!success)
+            {
+                return NotFound(new { message = "Auction not found." });
+            }
+
+            return NoContent();
+        }
     }
+
+
 }

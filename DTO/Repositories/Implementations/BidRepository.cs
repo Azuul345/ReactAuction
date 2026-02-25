@@ -30,5 +30,15 @@ namespace ReactAuction.DTO.Repositories.Implementations
         {
             return await _context.Bids.Where(b => b.AuctionId == auctionId).OrderByDescending(b => b.Amount).FirstOrDefaultAsync();
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public void Remove(Bid bid)
+        {
+            _context.Bids.Remove(bid);
+        }
     }
 }

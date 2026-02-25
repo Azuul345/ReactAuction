@@ -39,5 +39,10 @@ namespace ReactAuction.DTO.Repositories.Implementations
 
             return await query.OrderBy(a => a.EndTime).ToListAsync();
         }
+
+        public async Task SaveChangesAsync()
+        {
+            await _context.SaveChangesAsync();
+        }
     }
 }

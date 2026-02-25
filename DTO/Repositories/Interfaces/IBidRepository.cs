@@ -8,8 +8,11 @@ namespace ReactAuction.DTO.Repositories.Interfaces
 
         Task<Bid?> GetHighestBidForAuctionAsync(int auctionId);
 
+        Task SaveChangesAsync();
+
         Task AddAsync(Bid bid);
 
+        void Remove(Bid bid);
 
     }
 }
