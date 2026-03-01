@@ -12,6 +12,8 @@ namespace ReactAuction.DTO.Services.Interfaces
 
         Task<AuctionDetailResponse?> CreateAuctionAsync(AuctionCreateRequest request, int creatorUserId);
 
+        Task<List<AuctionListItemResponse>> GetClosedAuctionAsync(string? titleSearch);
+
         Task<AuctionDetailResponse?> UpdateAuctionAsync(int id, AuctionCreateRequest request, int userId);
 
         Task<bool> DeactivateAuctionAsync(int id);

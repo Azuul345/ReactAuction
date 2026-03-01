@@ -10,6 +10,7 @@ namespace ReactAuction.DTO.Repositories.Interfaces
 
         Task AddAsync(Auction auction);
 
+        Task<List<Auction>> GetClosedAuctionAsync(string? titleSearch);
         Task SaveChangesAsync();
     }
 

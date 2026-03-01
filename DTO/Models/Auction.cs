@@ -15,7 +15,7 @@ namespace ReactAuction.DTO.Models
         public int CreatedByUserId { get; set; }
         // Navigation property: the user who created the auction.
         [JsonIgnore]
-        public User? CreatedBtUser { get; set; }
+        public User CreatedByUser { get; set; }
 
         // True if this auction is active/visible.
         // Admin can set this to false to hide it from searches.
@@ -26,8 +26,9 @@ namespace ReactAuction.DTO.Models
         public ICollection<Bid>? Bids { get; set; }
 
         // Read-only helper property to check if the auction is currently open.
-        // This is computed from EndTime instead of stored in the database.
-        public bool IsOpen => IsActive && DateTime.UtcNow < EndTime;
+
+        public bool IsOpen => IsActive && EndTime > DateTime.Now;
+
 
 
 

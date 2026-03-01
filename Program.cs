@@ -66,6 +66,21 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddAuthorization();
 
 
+var allowedOrigins = "_allowedOrigins";
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowedOrigins, policy =>
+    {
+        policy
+            .WithOrigins("http://localhost:5173") // React dev server
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
+
+
+
 
 var app = builder.Build();
 
@@ -77,6 +92,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(allowedOrigins);
 
 // Authorization middleware (we'll configure it more when we add JWT).
 app.UseAuthorization();

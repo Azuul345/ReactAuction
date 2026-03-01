@@ -23,14 +23,14 @@ namespace ReactAuction.DTO.Repositories.Implementations
 
         public async Task<Auction?> GetByIdWithBidsAsync(int id)
         {
-            return await _context.Auctions.Include(a => a.CreatedBtUser).Include(a => a.Bids)
+            return await _context.Auctions.Include(a => a.CreatedByUser).Include(a => a.Bids)
             .ThenInclude(b => b.User).FirstOrDefaultAsync(a => a.Id == id);
         }
 
         public async Task<List<Auction>> GetOpenAuctionsAsync(string? titleSearch)
         {
-            var query = _context.Auctions.Include(a => a.CreatedBtUser)
-            .Where(a => a.IsActive && a.EndTime > DateTime.UtcNow);
+            var query = _context.Auctions.Include(a => a.CreatedByUser)
+            .Where(a => a.IsActive && a.EndTime > DateTime.Now);
 
             if (!string.IsNullOrWhiteSpace(titleSearch))
             {
@@ -43,6 +43,19 @@ namespace ReactAuction.DTO.Repositories.Implementations
         public async Task SaveChangesAsync()
         {
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Auction>> GetClosedAuctionAsync(string? titleSearch)
+        {
+            var query = _context.Auctions.Include(a => a.CreatedByUser).Where(a => a.EndTime < DateTime.Now);
+
+            if (!string.IsNullOrWhiteSpace(titleSearch))
+            {
+                query = query.Where(a => a.Title.Contains(titleSearch));
+            }
+
+            return await query.OrderByDescending(a => a.EndTime).ToListAsync();
+
         }
     }
 }

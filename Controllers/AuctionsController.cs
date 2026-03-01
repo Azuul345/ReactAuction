@@ -27,6 +27,13 @@ namespace ReactAuction.Controllers
             return Ok(result);
         }
 
+        [HttpGet("closed-auctions")]
+        public async Task<ActionResult<List<AuctionListItemResponse>>> GetClosedAuctions([FromQuery] string? search)
+        {
+            var result = await _auctionService.GetClosedAuctionAsync(search);
+            return Ok(result);
+        }
+
         // GET: /api/Auctions/5
         [HttpGet("{id:int}")]
         public async Task<ActionResult<AuctionDetailResponse>> GetAuctionById(int id)

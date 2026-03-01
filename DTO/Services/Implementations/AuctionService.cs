@@ -92,7 +92,7 @@ namespace ReactAuction.DTO.Services.Implementations
                 IsOpen = auction.IsOpen,
                 IsActive = auction.IsActive,
                 CreatedByUserId = auction.CreatedByUserId,
-                CreatedByName = auction.CreatedBtUser?.Name ?? string.Empty,
+                CreatedByName = auction.CreatedByUser?.Name ?? string.Empty,
                 Bids = bids
             };
         }
@@ -108,9 +108,25 @@ namespace ReactAuction.DTO.Services.Implementations
                 StartPrice = a.StartPrice,
                 EndTime = a.EndTime,
                 IsOpen = a.IsOpen,
-                CreatedByName = a.CreatedBtUser?.Name ?? string.Empty
+                CreatedByName = a.CreatedByUser?.Name ?? string.Empty
             }).ToList();
         }
+
+        public async Task<List<AuctionListItemResponse>> GetClosedAuctionAsync(string? titleSearch)
+        {
+            var auctions = await _auctionRepository.GetClosedAuctionAsync(titleSearch);
+
+            return auctions.Select(a => new AuctionListItemResponse
+            {
+                Id = a.Id,
+                Title = a.Title,
+                StartPrice = a.StartPrice,
+                EndTime = a.EndTime,
+                IsOpen = a.IsOpen,
+                CreatedByName = a.CreatedByUser?.Name ?? string.Empty
+            }).ToList();
+        }
+
 
         public async Task<AuctionDetailResponse> UpdateAuctionAsync(int id, AuctionCreateRequest request, int userId)
         {
